@@ -34,7 +34,7 @@ class AttachmentFieldsModel(QStandardItemModel):
                     continue
 
                 item_layer = QStandardItem(f"{layer.name()}")
-                if layer.renderer().type() == "singleSymbol":
+                if layer.renderer() and layer.renderer().type() == "singleSymbol":
                     icon = QgsSymbolLayerUtils.symbolPreviewIcon(layer.renderer().symbol(), QSize(16, 16))
                     item_layer.setIcon(icon)
                 elif has_icon_utils:
