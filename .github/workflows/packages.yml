@@ -157,7 +157,7 @@ jobs:
           cp qgis-mergin-plugin/LICENSE.txt output/Mergin/LICENSE
           (cd output && zip -r9 ../mergin.zip Mergin/)
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4.4.0
         with:
           name: Mergin
           path: output/
