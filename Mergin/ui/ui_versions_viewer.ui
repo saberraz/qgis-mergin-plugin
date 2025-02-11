@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1295</width>
-    <height>736</height>
+    <width>1380</width>
+    <height>834</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -175,7 +175,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QTreeView" name="history_treeview"/>
+        <widget class="QTreeView" name="history_treeview">
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

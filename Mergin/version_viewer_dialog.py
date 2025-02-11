@@ -110,7 +110,7 @@ class VersionsTableModel(QAbstractTableModel):
         if index.row() >= len(self.versions):
             if role == Qt.DisplayRole:
                 if index.column() == 0:
-                    return "loading⌛"
+                    return "loading..."
             return
         if role == Qt.DisplayRole:
             if index.column() == 0:
@@ -165,7 +165,7 @@ Date: {format_datetime(self.versions[idx]['created'])}"""
         first_row = self.rowCount() - 1
         last_row = first_row + 1
         self.beginRemoveRows(QModelIndex(), first_row, last_row)
-        self.endInsertRows()
+        self.endRemoveRows()
         self._loading = False
 
     def item_from_index(self, index: QModelIndex):
@@ -363,7 +363,7 @@ class VersionViewerDialog(QDialog):
             btn_add_changes.setMenu(menu)
 
             # Fix issue on MacOS where the menu was not working properly, it's unclear why we need that
-            btn_add_changes.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+            btn_add_changes.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
             self.toolbar.addWidget(btn_add_changes)
             self.toolbar.setIconSize(iface.iconSize())
@@ -458,6 +458,18 @@ class VersionViewerDialog(QDialog):
         # Fetch more if there is no scrollbar yet
         if not self.history_treeview.verticalScrollBar().isVisible():
             self.fetch_from_server()
+
+        # Action we do only on the first fetch
+        #  * resizing the column at the end of the first fetch to fit the text
+        #  * set current selected version to latest server version
+        # Nb current page is increment on each fetch so we check for 2n page
+        if self.fetcher.current_page == 2:
+            self.history_treeview.resizeColumnToContents(0)
+
+            first_row_index = self.history_treeview.model().index(0, 1, QModelIndex())
+            self.selectionModel.setCurrentIndex(
+                first_row_index, QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+            )
 
     def on_scrollbar_changed(self, value):
 
@@ -567,6 +579,11 @@ class VersionViewerDialog(QDialog):
 
     def show_version_changes(self, version):
         self.diff_layers.clear()
+
+        # Sync UI/Thread
+        if int_version(self.version_details["name"]) != version:
+            # latest loaded is differrent from the selected one don't show it
+            return
 
         layers = make_version_changes_layers(QgsProject.instance().homePath(), version)
         for vl in layers:
